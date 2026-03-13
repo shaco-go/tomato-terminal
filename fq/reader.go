@@ -3,18 +3,18 @@ package fq
 import (
 	"errors"
 	"fmt"
-	"github.com/shaco-go/tomato-terminal/config"
-	"github.com/shaco-go/tomato-terminal/types"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/shaco-go/tomato-terminal/config"
+	"github.com/shaco-go/tomato-terminal/types"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/dop251/goja"
 	"github.com/tidwall/gjson"
 
-	"go.uber.org/zap"
 	"resty.dev/v3"
 )
 
@@ -248,8 +248,7 @@ func decodeText(text string) string {
 			if val, ok := types.CharMap[key]; ok {
 				result.WriteString(val)
 			} else {
-				zap.L().Warn("CharMap missing mapping", zap.Int("code", code), zap.String("char", string(r)))
-				result.WriteRune(r)
+				result.WriteString(fmt.Sprintf("[%d]", code))
 			}
 		} else {
 			result.WriteRune(r)

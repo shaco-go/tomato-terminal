@@ -34,9 +34,12 @@ func parseLineOrDefault(raw string, current int) int {
 }
 
 func applyReadConfig(itemID string, rawLine string) {
-	config.Conf.ItemID = itemID
+	trimmedItemID := strings.TrimSpace(itemID)
+	if config.Conf.ItemID != trimmedItemID {
+		config.Conf.Cursor = 0
+	}
+	config.Conf.ItemID = trimmedItemID
 	config.Conf.Line = parseLineOrDefault(rawLine, config.Conf.Line)
-	config.Conf.Cursor = 0
 }
 
 func (c ConfigPage) Init() tea.Cmd {

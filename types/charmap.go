@@ -12,6 +12,13 @@ func LoadCharMap(filename string) error {
 	raw, err := os.ReadFile(filename)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
+			defaultRaw, marshalErr := json.Marshal(defaultCharMap)
+			if marshalErr != nil {
+				return marshalErr
+			}
+			if writeErr := os.WriteFile(filename, defaultRaw, 0o644); writeErr != nil {
+				return writeErr
+			}
 			return nil
 		}
 		return err

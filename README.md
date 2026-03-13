@@ -1,0 +1,1 @@
+go install github.com/shaco-go/tomato-terminal/cmd/tt@latest

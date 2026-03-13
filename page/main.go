@@ -51,6 +51,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.quit = true
 			return m, tea.Quit
 		}
+	case types.QuitMsg:
+		m.quit = true
+		return m, tea.Quit
 	case types.ChangePageMsg:
 		zap.L().Debug("切换页面", zap.Any("msg", msg))
 		m.pageIndex = types.Page(msg)

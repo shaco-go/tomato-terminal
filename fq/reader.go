@@ -3,12 +3,12 @@ package fq
 import (
 	"errors"
 	"fmt"
+	"github.com/shaco-go/tomato-terminal/config"
+	"github.com/shaco-go/tomato-terminal/types"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
-	"github.com/shaco-go/tomato-terminal/config"
-	"github.com/shaco-go/tomato-terminal/types"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/dop251/goja"
@@ -167,9 +167,7 @@ func (r *Reader) getChapterByItemID(itemID string) (*chapterItem, error) {
 	}
 
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			zap.L().Warn("close response body failed", zap.Error(err))
-		}
+		_ = resp.Body.Close()
 	}()
 
 	body, err := io.ReadAll(resp.Body)
@@ -246,9 +244,11 @@ func decodeText(text string) string {
 	for _, r := range text {
 		code := int(r)
 		if code > 50000 && code < 60000 {
-			if val, ok := types.CharMap[strconv.Itoa(code)]; ok {
+			key := strconv.Itoa(code)
+			if val, ok := types.CharMap[key]; ok {
 				result.WriteString(val)
 			} else {
+				zap.L().Warn("CharMap missing mapping", zap.Int("code", code), zap.String("char", string(r)))
 				result.WriteRune(r)
 			}
 		} else {

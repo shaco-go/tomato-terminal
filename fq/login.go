@@ -2,19 +2,18 @@ package fq
 
 import (
 	"errors"
+	"github.com/shaco-go/tomato-terminal/config"
+	"github.com/shaco-go/tomato-terminal/pkg"
 	"net/http"
 	"os"
 	"os/exec"
 	"regexp"
 	"sync"
 	"time"
-	"github.com/shaco-go/tomato-terminal/config"
-	"github.com/shaco-go/tomato-terminal/pkg"
 
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/go-rod/rod/lib/proto"
-	"go.uber.org/zap"
 )
 
 var (
@@ -62,9 +61,7 @@ func closePage(page *rod.Page) {
 	if page == nil {
 		return
 	}
-	if err := page.Close(); err != nil {
-		zap.L().Warn("close page failed", zap.Error(err))
-	}
+	_ = page.Close()
 }
 
 func waitLogin(page *rod.Page, attempts int, interval time.Duration) (bool, error) {
@@ -185,9 +182,7 @@ func (f *Login) Login() (bool, error) {
 		return false, err
 	}
 
-	if err := exec.Command("cmd", "/c", "start", filename).Start(); err != nil {
-		zap.L().Warn("open qrcode file failed", zap.Error(err), zap.String("file", filename))
-	}
+	_ = exec.Command("cmd", "/c", "start", filename).Start()
 
 	ok, err := waitLogin(page, 10, time.Second)
 	if err != nil {

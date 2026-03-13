@@ -27,3 +27,5 @@ func (p Page) String() string {
 }
 
 type ChangePageMsg Page
+
+type QuitMsg struct{}

@@ -2,12 +2,15 @@ package page
 
 import (
 	"strings"
+	"time"
 
 	"github.com/shaco-go/tomato-terminal/fq"
 	"github.com/shaco-go/tomato-terminal/types"
 
 	tea "charm.land/bubbletea/v2"
 )
+
+const doubleClickExitInterval = 200 * time.Millisecond
 
 func NewRead() ReadModel {
 	return ReadModel{
@@ -18,10 +21,11 @@ func NewRead() ReadModel {
 }
 
 type ReadModel struct {
-	hide    bool
-	content []string
-	login   *fq.Login
-	reader  *fq.Reader
+	hide        bool
+	content     []string
+	login       *fq.Login
+	reader      *fq.Reader
+	lastClickAt time.Time
 }
 
 func (r ReadModel) Init() tea.Cmd {
@@ -45,6 +49,13 @@ func (r ReadModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.MouseClickMsg:
 		switch msg.Button {
 		case tea.MouseLeft, tea.MouseRight:
+			now := time.Now()
+			if !r.lastClickAt.IsZero() && now.Sub(r.lastClickAt) <= doubleClickExitInterval {
+				return r, func() tea.Msg {
+					return types.QuitMsg{}
+				}
+			}
+			r.lastClickAt = now
 			return r.Hide(), nil
 		case tea.MouseMiddle:
 			return r.Visible(), nil

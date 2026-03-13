@@ -13,10 +13,12 @@ import (
 const doubleClickExitInterval = 200 * time.Millisecond
 
 func NewRead() ReadModel {
+	reader := fq.NewReader()
 	return ReadModel{
-		hide:   false,
-		login:  fq.GetInstance(),
-		reader: fq.NewReader(),
+		hide:    false,
+		login:   fq.GetInstance(),
+		reader:  reader,
+		content: reader.Current(),
 	}
 }
 

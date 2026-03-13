@@ -15,7 +15,7 @@ func New() Model {
 	m.pageManage[types.ReaderPage] = NewRead()
 	m.pageManage[types.ConfigPage] = NewConfig()
 	m.pageManage[types.LoginPage] = NewLogin()
-	m.pageIndex = types.MenuPage
+	m.pageIndex = types.ReaderPage
 	return m
 }
 

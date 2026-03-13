@@ -95,6 +95,25 @@ func (r *Reader) Prev() []string {
 	return content
 }
 
+func (r *Reader) Current() []string {
+	err := r.GetChapter()
+	if err != nil {
+		return []string{err.Error()}
+	}
+	line := normalizeLine(config.Conf.Line)
+	if config.Conf.Cursor >= len(r.chapter.Content) {
+		config.Conf.Cursor = len(r.chapter.Content) - line
+		if config.Conf.Cursor < 0 {
+			config.Conf.Cursor = 0
+		}
+	}
+	endPos := config.Conf.Cursor + line
+	if endPos > len(r.chapter.Content) {
+		endPos = len(r.chapter.Content)
+	}
+	return r.chapter.Content[config.Conf.Cursor:endPos]
+}
+
 func (r *Reader) Next() []string {
 	err := r.GetChapter()
 	if err != nil {

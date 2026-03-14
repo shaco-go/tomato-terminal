@@ -18,7 +18,7 @@ func NewRead() ReadModel {
 		hide:    false,
 		login:   fq.GetInstance(),
 		reader:  reader,
-		content: reader.Current(),
+		content: []string{},
 	}
 }
 

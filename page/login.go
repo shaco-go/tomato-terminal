@@ -3,6 +3,7 @@ package page
 import (
 	"strings"
 	"time"
+
 	"github.com/shaco-go/tomato-terminal/config"
 	"github.com/shaco-go/tomato-terminal/fq"
 	"github.com/shaco-go/tomato-terminal/types"
@@ -42,11 +43,6 @@ type LoginPage struct {
 }
 
 func (l LoginPage) Init() tea.Cmd {
-	err := l.fq.StartBrowser()
-	if err != nil {
-		zap.L().Error("failed to start browser", zap.Error(err))
-		return nil
-	}
 	var cmds = []tea.Cmd{l.tick()}
 	if len(config.Conf.Cookie) > 0 {
 		l.status = StatusLoggedIn
@@ -67,7 +63,13 @@ func (l LoginPage) tick() tea.Cmd {
 
 func (l LoginPage) doLogin() tea.Cmd {
 	return func() tea.Msg {
+		err := l.fq.StartBrowser()
+		if err != nil {
+			zap.L().Error("failed to start browser", zap.Error(err))
+			return loginResultMsg{success: false, err: err}
+		}
 		success, err := l.fq.Login()
+		l.Close()
 		return loginResultMsg{success: success, err: err}
 	}
 }
@@ -201,7 +203,5 @@ func (l LoginPage) Close() {
 }
 
 func (l LoginPage) ChangePage(p types.Page) tea.Msg {
-	l.Close()
-	zap.L().Debug("changePage", zap.Any("page", p))
 	return types.ChangePageMsg(p)
 }

@@ -2,14 +2,16 @@ package fq
 
 import (
 	"errors"
-	"github.com/shaco-go/tomato-terminal/config"
-	"github.com/shaco-go/tomato-terminal/pkg"
 	"net/http"
 	"os"
 	"os/exec"
 	"regexp"
 	"sync"
 	"time"
+
+	"github.com/shaco-go/tomato-terminal/config"
+	"github.com/shaco-go/tomato-terminal/pkg"
+	"go.uber.org/zap"
 
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
@@ -51,10 +53,10 @@ func GetInstance() *Login {
 	return instance
 }
 
-func (f *Login) GetContent() []string {
-	f.mu.RLock()
-	defer f.mu.RUnlock()
-	return f.content
+func (l *Login) GetContent() []string {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	return l.content
 }
 
 func closePage(page *rod.Page) {
@@ -64,7 +66,10 @@ func closePage(page *rod.Page) {
 	_ = page.Close()
 }
 
-func waitLogin(page *rod.Page, attempts int, interval time.Duration) (bool, error) {
+func (l *Login) waitLogin(attempts int, interval time.Duration) (bool, error) {
+	page := l.b.MustPage(fqURI)
+	page.MustWaitStable()
+	defer page.MustClose()
 	for i := 0; i < attempts; i++ {
 		hasLoginButton, _, err := page.HasR(".slogin-user-avatar__buttons__item", "登录")
 		if err != nil {
@@ -74,15 +79,17 @@ func waitLogin(page *rod.Page, attempts int, interval time.Duration) (bool, erro
 			return true, nil
 		}
 		time.Sleep(interval)
+		page.MustReload()
+		page.MustWaitStable()
 	}
 	return false, nil
 }
 
-func (f *Login) StartBrowser() error {
-	f.mu.Lock()
-	defer f.mu.Unlock()
+func (l *Login) StartBrowser() error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 
-	if f.b != nil {
+	if l.b != nil {
 		return nil
 	}
 
@@ -102,28 +109,28 @@ func (f *Login) StartBrowser() error {
 		return err
 	}
 
-	f.b = browser
+	l.b = browser
 	return nil
 }
 
-func (f *Login) Close() error {
-	f.mu.Lock()
-	defer f.mu.Unlock()
+func (l *Login) Close() error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 
-	if f.b == nil {
+	if l.b == nil {
 		return nil
 	}
 
-	if err := f.b.Close(); err != nil {
+	if err := l.b.Close(); err != nil {
 		return err
 	}
 
-	f.b = nil
+	l.b = nil
 	return nil
 }
 
-func (f *Login) IsLogin() (bool, error) {
-	page, err := f.openPage(fqURI)
+func (l *Login) IsLogin() (bool, error) {
+	page, err := l.openPage(fqURI)
 	if err != nil {
 		return false, err
 	}
@@ -137,8 +144,8 @@ func (f *Login) IsLogin() (bool, error) {
 	return !hasLoginButton, nil
 }
 
-func (f *Login) Login() (bool, error) {
-	page, err := f.openPage(fqURI)
+func (l *Login) Login() (bool, error) {
+	page, err := l.openPage(fqURI)
 	if err != nil {
 		return false, err
 	}
@@ -184,7 +191,8 @@ func (f *Login) Login() (bool, error) {
 
 	_ = exec.Command("cmd", "/c", "start", filename).Start()
 
-	ok, err := waitLogin(page, 10, time.Second)
+	ok, err := l.waitLogin(15, time.Second)
+	zap.L().Debug("是否登录成功", zap.Error(err), zap.Bool("ok", ok))
 	if err != nil {
 		return false, err
 	}
@@ -218,14 +226,14 @@ func (f *Login) Login() (bool, error) {
 	return true, nil
 }
 
-func (f *Login) openPage(url string) (*rod.Page, error) {
-	if err := f.StartBrowser(); err != nil {
+func (l *Login) openPage(url string) (*rod.Page, error) {
+	if err := l.StartBrowser(); err != nil {
 		return nil, err
 	}
 
-	f.mu.RLock()
-	browser := f.b
-	f.mu.RUnlock()
+	l.mu.RLock()
+	browser := l.b
+	l.mu.RUnlock()
 	if browser == nil {
 		return nil, errors.New("browser is not initialized")
 	}

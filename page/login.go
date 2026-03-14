@@ -1,6 +1,7 @@
 package page
 
 import (
+	"net/http"
 	"strings"
 	"time"
 
@@ -69,6 +70,9 @@ func (l LoginPage) doLogin() tea.Cmd {
 			return loginResultMsg{success: false, err: err}
 		}
 		success, err := l.fq.Login()
+		if err != nil {
+			zap.L().Error("failed to login", zap.Error(err))
+		}
 		l.Close()
 		return loginResultMsg{success: success, err: err}
 	}
@@ -109,6 +113,7 @@ func (l LoginPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					config.Conf.Cookie = nil
 					config.Conf.Flush()
 					l.status = StatusLoggedOut
+					config.Conf.Cookie = []*http.Cookie{}
 				} else {
 					l.status = StatusLoggingIn
 					return l, l.doLogin()

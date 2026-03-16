@@ -13,11 +13,12 @@ var Conf = &conf{}
 var filename = pkg.WorkspaceDir("config.json")
 
 type conf struct {
-	ItemID    string
-	Cursor    int
-	Line      int
-	WidthSize int
-	Cookie    []*http.Cookie
+	ItemID       string
+	Cursor       int
+	Line         int
+	MaxRuneCount int
+	Margin       int
+	Cookie       []*http.Cookie
 }
 
 // Load 加载

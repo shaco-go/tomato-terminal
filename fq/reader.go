@@ -224,7 +224,7 @@ func (r *Reader) getChapterByItemID(itemID string) (*chapterItem, error) {
 	doc.Find("p").Each(func(i int, s *goquery.Selection) {
 		temp := decodeText(s.Text())
 		if strings.TrimSpace(temp) != "" {
-			chapter.Content = append(chapter.Content, smartChunk(temp, config.Conf.WidthSize)...)
+			chapter.Content = append(chapter.Content, smartChunk(temp, config.Conf.MaxRuneCount)...)
 		}
 	})
 	if len(chapter.Content) == 0 {

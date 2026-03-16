@@ -3,6 +3,7 @@ package page
 import (
 	"strconv"
 	"strings"
+
 	"github.com/shaco-go/tomato-terminal/config"
 	"github.com/shaco-go/tomato-terminal/types"
 
@@ -33,13 +34,15 @@ func parseLineOrDefault(raw string, current int) int {
 	return defaultLine
 }
 
-func applyReadConfig(itemID string, rawLine string) {
+func applyReadConfig(itemID, rawLine, maxRuneCount, margin string) {
 	trimmedItemID := strings.TrimSpace(itemID)
 	if config.Conf.ItemID != trimmedItemID {
 		config.Conf.Cursor = 0
 	}
 	config.Conf.ItemID = trimmedItemID
 	config.Conf.Line = parseLineOrDefault(rawLine, config.Conf.Line)
+	config.Conf.MaxRuneCount, _ = strconv.Atoi(maxRuneCount)
+	config.Conf.Margin, _ = strconv.Atoi(margin)
 }
 
 func (c ConfigPage) Init() tea.Cmd {
@@ -54,7 +57,12 @@ func (c ConfigPage) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	}
 	if c.form.State == huh.StateCompleted {
-		applyReadConfig(c.form.GetString("itemId"), c.form.GetString("line"))
+		applyReadConfig(
+			c.form.GetString("itemId"),
+			c.form.GetString("line"),
+			c.form.GetString("maxRuneCount"),
+			c.form.GetString("margin"),
+		)
 		c.form = c.newForm()
 		cmds = append(cmds, func() tea.Msg {
 			return types.ChangePageMsg(types.ReaderPage)
@@ -74,6 +82,8 @@ func (c ConfigPage) newForm() *huh.Form {
 		huh.NewGroup(
 			huh.NewInput().Key("itemId").Title("ItemID").Value(&itemID),
 			huh.NewInput().Key("line").Title("Line").Value(&line),
+			huh.NewInput().Key("maxRuneCount").Title("MaxRuneCount").Value(&line),
+			huh.NewInput().Key("margin").Title("Margin").Value(&line),
 		),
 	)
 }

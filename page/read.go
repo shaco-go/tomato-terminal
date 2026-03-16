@@ -4,6 +4,8 @@ import (
 	"strings"
 	"time"
 
+	"charm.land/lipgloss/v2"
+	"github.com/shaco-go/tomato-terminal/config"
 	"github.com/shaco-go/tomato-terminal/fq"
 	"github.com/shaco-go/tomato-terminal/types"
 
@@ -81,7 +83,7 @@ func (r ReadModel) View() tea.View {
 	if r.hide {
 		v = tea.NewView("")
 	} else {
-		v = tea.NewView(strings.Join(r.content, "\n"))
+		v = tea.NewView(lipgloss.NewStyle().Margin(0, config.Conf.Margin, 0, config.Conf.Margin).Render(strings.Join(r.content, "\n")))
 	}
 	v.MouseMode = tea.MouseModeAllMotion
 	return v

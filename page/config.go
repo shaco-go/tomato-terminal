@@ -78,12 +78,14 @@ func (c ConfigPage) View() tea.View {
 func (c ConfigPage) newForm() *huh.Form {
 	var itemID = config.Conf.ItemID
 	var line = strconv.Itoa(config.Conf.Line)
+	var maxRuneCount = strconv.Itoa(config.Conf.MaxRuneCount)
+	var margin = strconv.Itoa(config.Conf.Margin)
 	return huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().Key("itemId").Title("ItemID").Value(&itemID),
 			huh.NewInput().Key("line").Title("Line").Value(&line),
-			huh.NewInput().Key("maxRuneCount").Title("MaxRuneCount").Value(&line),
-			huh.NewInput().Key("margin").Title("Margin").Value(&line),
+			huh.NewInput().Key("maxRuneCount").Title("MaxRuneCount").Value(&maxRuneCount),
+			huh.NewInput().Key("margin").Title("Margin").Value(&margin),
 		),
 	)
 }

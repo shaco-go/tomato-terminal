@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+
 	"github.com/shaco-go/tomato-terminal/pkg"
 )
 
@@ -12,10 +13,11 @@ var Conf = &conf{}
 var filename = pkg.WorkspaceDir("config.json")
 
 type conf struct {
-	ItemID string
-	Cursor int
-	Line   int
-	Cookie []*http.Cookie
+	ItemID    string
+	Cursor    int
+	Line      int
+	WidthSize int
+	Cookie    []*http.Cookie
 }
 
 // Load 加载

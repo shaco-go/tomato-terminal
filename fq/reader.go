@@ -224,7 +224,7 @@ func (r *Reader) getChapterByItemID(itemID string) (*chapterItem, error) {
 	doc.Find("p").Each(func(i int, s *goquery.Selection) {
 		temp := decodeText(s.Text())
 		if strings.TrimSpace(temp) != "" {
-			chapter.Content = append(chapter.Content, temp)
+			chapter.Content = append(chapter.Content, smartChunk(temp, config.Conf.WidthSize)...)
 		}
 	})
 	if len(chapter.Content) == 0 {
@@ -274,4 +274,31 @@ func decodeText(text string) string {
 		}
 	}
 	return result.String()
+}
+func smartChunk(s string, maxLen int) []string {
+	runes := []rune(s)
+	var chunks []string
+	start := 0
+
+	for start < len(runes) {
+		end := start + maxLen
+		if end >= len(runes) {
+			chunks = append(chunks, string(runes[start:]))
+			break
+		}
+
+		// 尝试在标点处分割
+		for i := end; i > start; i-- {
+			r := runes[i]
+			if r == '。' || r == '！' || r == '？' || r == '，' || r == '；' {
+				end = i + 1
+				break
+			}
+		}
+
+		chunks = append(chunks, string(runes[start:end]))
+		start = end
+	}
+
+	return chunks
 }
